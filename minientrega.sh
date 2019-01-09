@@ -41,12 +41,28 @@ then
 fi
 
 configuracion=$( cd $MINIENTREGA_CONF; less $1)
+count=0
+WORDS=$( echo $configuracion | wc -w)
 
-
-FECHA_LIMITE=${sed -n '/\"/,/\"/'}
-echo $FECHA_LIMITE
 for word in $configuracion
 do
-    echo $word
-    echo "     "
+    if [[ count -eq 0 ]]
+    then
+        palabra=$(echo "${word#*=}")
+        FECHA_LIMITE=$(echo "${palabra//\"/}")
+        let count++
+
+    elif [[ count -lt WORDS ]]
+    then
+        palabra=$(echo "${word#*=}")
+        FICHEROS="$FICHEROS $(echo "${palabra//\"/}")"
+        let count++
+
+    else
+        palabra=$(echo "${word#*=}")
+        DESTINO=$(echo "${palabra//\"/}")
+    fi
 done
+
+echo $FECHA_LIMITE $FICHEROS $DESTINO
+
